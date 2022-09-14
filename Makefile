@@ -30,10 +30,12 @@ SHADERS_RESULT_NAME =	frag.spv \
 SRCS_NAME =	main.cpp \
 			engine/vish.cpp \
 			engine/vishHelper.cpp \
+			engine/swapchainHelper.cpp
 
 HDRS_NAME =	engine/vish.hpp \
 			engine/vishHelper.hpp \
 			engine/vishParams.hpp \
+			engine/swapchainHelper.hpp
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
 
