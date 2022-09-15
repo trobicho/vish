@@ -6,7 +6,7 @@
 
 namespace VishParams {
   inline std::vector<const char*>  validationLayers() {
-    std::vector<const char*> layers = {"VK_LAYER_KRONOS_validation"};
+    std::vector<const char*> layers = {"VK_LAYER_KHRONOS_validation"};
     return (layers);
   }
 
