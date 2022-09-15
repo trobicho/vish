@@ -3,11 +3,22 @@
 #include "vishParams.hpp"
 #include "vishHelper.hpp"
 #include "swapchainHelper.hpp"
+#include "queueHelper.hpp"
 
 Vish::Vish(GLFWwindow *win) : m_window(win) {
 }
 
 Vish::~Vish() {
+  uint32_t imgCount;
+
+  vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
+  for (int i = 0; i < imgCount; ++i) {
+    vkDestroyImageView(m_device, m_imageView[i], nullptr);
+  }
+  vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
+  vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+  vkDestroyInstance(m_instance, nullptr);
+  vkDestroyDevice(m_device, nullptr);
 }
 
 void  Vish::init() {
@@ -65,8 +76,30 @@ void  Vish::choosePysicalDevice() { //TODO: make the thing
 }
 
 void  Vish::createLogicalDeviceAndQueue() {
-  std::vector<int>                      queueIdx;
-  std::vector<VkDeviceQueueCreateInfo>  queueInfo;
+  uint32_t  queueFamilyIndex;
+  float     queuePriority = 1.0f;
+
+  QueueHelper::familyIndex(m_physicalDevice, m_surface, &queueFamilyIndex);
+  VkDeviceQueueCreateInfo queueInfo = {
+    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+    .queueFamilyIndex = queueFamilyIndex,
+    .queueCount = 1,
+    .pQueuePriorities = &queuePriority,
+  };
+  auto  deviceExtentions = VishParams::deviceExtensions();
+  VkPhysicalDeviceFeatures  deviceFeature = {};
+  VkDeviceCreateInfo        deviceInfo = {
+    .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+    .queueCreateInfoCount = 1,
+    .pQueueCreateInfos = &queueInfo,
+    .enabledExtensionCount = (uint32_t)deviceExtentions.size(),
+    .ppEnabledExtensionNames = deviceExtentions.data(),
+    .pEnabledFeatures = &deviceFeature,
+  };
+  if (vkCreateDevice(m_physicalDevice, &deviceInfo
+      , nullptr, &m_device) != VK_SUCCESS)
+    throw VishHelper::FatalVulkanInitError("Failed to create logical device!");
+  vkGetDeviceQueue(m_device, queueFamilyIndex, 0, &m_queueWrap.graphics);
 }
 
 void  Vish::createSwapchain() {
