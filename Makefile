@@ -4,10 +4,10 @@ CXXFLAGS	=	-std=c++20 -g
 
 NAME = vish
 
-INCLUDE_PATH = /home/tom/projects/lib
-SRCS_PATH	=	./src
-HDRS_PATH	=	./src
-OBJS_PATH	=	./obj
+INCLUDE_PATH 	= /home/tom/projects/lib
+SRCS_PATH		=	./src
+HDRS_PATH		=	./src
+OBJS_PATH		=	./obj
 SHADERS_PATH	=	./shaders
 
 UNAME := $(shell uname)
@@ -21,7 +21,7 @@ else
 	LDFLAGS = -L$(GLFW3_PATH)/lib -L$(VULKAN_SDK)/lib `pkg-config --static --libs glm` -lvulkan -lglfw -lm
 endif
 
-SHADERS_NAME =	fractal.frag \
+SHADERS_NAME =	mandelbrot_float.frag \
                 shader.vert \
 
 SHADERS_RESULT_NAME =	frag.spv \
@@ -32,7 +32,9 @@ SRCS_NAME =	main.cpp \
 			engine/vishHelper.cpp \
 			engine/swapchainHelper.cpp \
 			engine/queueHelper.cpp \
-			engine/vishRenderPass.cpp
+			engine/vishRenderPass.cpp \
+			engine/vishPipelineGraphics.cpp \
+			engine/vishMemory.cpp \
 
 HDRS_NAME =	engine/vish.hpp \
 			engine/vishHelper.hpp \

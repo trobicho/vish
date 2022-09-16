@@ -13,6 +13,9 @@ Vish::~Vish() {
 
   vkDestroyRenderPass(m_device, m_renderPass, nullptr);
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
+  for (auto pipeline : m_pipelineBuffer) {
+    destroyPipeline(pipeline);
+  }
   for (int i = 0; i < imgCount; ++i) {
     vkDestroyImageView(m_device, m_swapchainWrap.imageView[i], nullptr);
     vkDestroyFramebuffer(m_device, m_swapchainWrap.framebuffer[i], nullptr);
@@ -32,6 +35,8 @@ void  Vish::init() {
   createImageView();
   createRenderPass();
   createFramebuffer();
+  m_pipelineBuffer.resize(1);
+  createGraphicsPipeline(m_pipelineBuffer[0]);
 }
 
 void  Vish::createInstance() {

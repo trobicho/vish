@@ -13,6 +13,11 @@ struct  SwapChainWrapper {
   std::vector<VkImageView>    imageView;
 };
 
+struct  PipelineWrapper {
+  VkPipeline        pipeline;
+  VkPipelineLayout  layout;
+};
+
 struct  QueueWrapper {
   VkQueue   graphics;
 };
@@ -40,10 +45,16 @@ class   Vish {
       VkSurfaceKHR      m_surface;
       QueueWrapper      m_queueWrap;
 
-      SwapChainWrapper            m_swapchainWrap;
+      SwapChainWrapper  m_swapchainWrap;
+
+      std::vector<PipelineWrapper>   m_pipelineBuffer;
 
     private:
       void  createRenderPass();
 
       VkRenderPass    m_renderPass;
+
+    private:
+      void  createGraphicsPipeline(PipelineWrapper &pipelineWrap);
+      void  destroyPipeline(PipelineWrapper &pipelineWrap);
 };

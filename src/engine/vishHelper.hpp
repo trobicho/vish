@@ -3,6 +3,15 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 #include <string>
+#include <vector>
+
+namespace VishHelper {
+  std::vector<char>     readBinaryFile(const std::string &filename);
+  VkShaderModule	createShaderModuleFromCode(VkDevice device, std::vector<char> code);
+  inline VkShaderModule createShaderModuleFromFile(VkDevice device, const std::string &filename) {
+    return (createShaderModuleFromCode(device, readBinaryFile(filename)));
+  }
+}
 
 namespace VishHelper {
   void  infoInstance();
