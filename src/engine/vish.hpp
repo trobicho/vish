@@ -38,4 +38,9 @@ class   Vish {
 
       SwapChainWrapper            m_swapchainWrap;
       std::vector<VkImageView>    m_imageView;
+
+    private:
+      void  createRenderPass();
+
+      VkRenderPass    m_renderPass;
 };

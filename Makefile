@@ -32,6 +32,7 @@ SRCS_NAME =	main.cpp \
 			engine/vishHelper.cpp \
 			engine/swapchainHelper.cpp \
 			engine/queueHelper.cpp \
+			engine/vishRenderPass.cpp
 
 HDRS_NAME =	engine/vish.hpp \
 			engine/vishHelper.hpp \

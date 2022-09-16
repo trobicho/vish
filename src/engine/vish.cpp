@@ -11,6 +11,7 @@ Vish::Vish(GLFWwindow *win) : m_window(win) {
 Vish::~Vish() {
   uint32_t imgCount;
 
+  vkDestroyRenderPass(m_device, m_renderPass, nullptr);
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
   for (int i = 0; i < imgCount; ++i) {
     vkDestroyImageView(m_device, m_imageView[i], nullptr);
@@ -27,6 +28,8 @@ void  Vish::init() {
   choosePysicalDevice();
   createLogicalDeviceAndQueue();
   createSwapchain();
+  createImageView();
+  createRenderPass();
 }
 
 void  Vish::createInstance() {
@@ -52,12 +55,12 @@ void  Vish::createInstance() {
   };
 
   if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
-    throw VishHelper::FatalVulkanInitError("Failed to create instance");
+    throw VishHelper::FatalVulkanInitError("Failed to create Instance");
 }
 
 void  Vish::createSurface() {
   if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-    throw VishHelper::FatalVulkanInitError("Failed to create surface");
+    throw VishHelper::FatalVulkanInitError("Failed to create Surface");
 }
   
 void  Vish::choosePysicalDevice() { //TODO: make the thing
@@ -183,6 +186,6 @@ void  Vish::createImageView() {
     };
     if (vkCreateImageView(m_device, &viewInfo
         , nullptr, &m_imageView[i]) != VK_SUCCESS)
-      throw VishHelper::FatalVulkanInitError("Failed to create imageViews!");
+      throw VishHelper::FatalVulkanInitError("Failed to create ImageViews!");
   }
 }
