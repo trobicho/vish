@@ -5,9 +5,12 @@
 
 struct  SwapChainWrapper {
   VkSwapchainKHR        chain;
-  std::vector<VkImage>  image;
   VkFormat              imageFormat;
   VkExtent2D            extent;
+
+  std::vector<VkImage>        image;
+  std::vector<VkFramebuffer>  framebuffer;
+  std::vector<VkImageView>    imageView;
 };
 
 struct  QueueWrapper {
@@ -28,6 +31,7 @@ class   Vish {
       void  createImageView();
       void  createLogicalDeviceAndQueue();
       void  choosePysicalDevice();
+      void  createFramebuffer();
 
       GLFWwindow        *m_window;
       VkInstance        m_instance;
@@ -37,7 +41,6 @@ class   Vish {
       QueueWrapper      m_queueWrap;
 
       SwapChainWrapper            m_swapchainWrap;
-      std::vector<VkImageView>    m_imageView;
 
     private:
       void  createRenderPass();

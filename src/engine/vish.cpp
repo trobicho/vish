@@ -14,7 +14,8 @@ Vish::~Vish() {
   vkDestroyRenderPass(m_device, m_renderPass, nullptr);
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
   for (int i = 0; i < imgCount; ++i) {
-    vkDestroyImageView(m_device, m_imageView[i], nullptr);
+    vkDestroyImageView(m_device, m_swapchainWrap.imageView[i], nullptr);
+    vkDestroyFramebuffer(m_device, m_swapchainWrap.framebuffer[i], nullptr);
   }
   vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
   vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
@@ -30,6 +31,7 @@ void  Vish::init() {
   createSwapchain();
   createImageView();
   createRenderPass();
+  createFramebuffer();
 }
 
 void  Vish::createInstance() {
@@ -163,7 +165,7 @@ void  Vish::createImageView() {
   uint32_t  imageCount;
 
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imageCount, nullptr);
-  m_imageView.resize(imageCount);
+  m_swapchainWrap.imageView.resize(imageCount);
   for (int i = 0; i < imageCount; ++i) {
     VkImageViewCreateInfo viewInfo = {
       .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -185,7 +187,27 @@ void  Vish::createImageView() {
       },
     };
     if (vkCreateImageView(m_device, &viewInfo
-        , nullptr, &m_imageView[i]) != VK_SUCCESS)
+        , nullptr, &m_swapchainWrap.imageView[i]) != VK_SUCCESS)
       throw VishHelper::FatalVulkanInitError("Failed to create ImageViews!");
+  }
+}
+
+void  Vish::createFramebuffer() {
+  uint32_t  imageCount = m_swapchainWrap.image.size();
+
+  m_swapchainWrap.framebuffer.resize(imageCount);
+  for (int i = 0; i < imageCount; ++i) {
+    VkFramebufferCreateInfo framebufferInfo = {
+      .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+      .renderPass = m_renderPass,
+      .attachmentCount = 1,
+      .pAttachments = &m_swapchainWrap.imageView[i],
+      .width = m_swapchainWrap.extent.width,
+      .height = m_swapchainWrap.extent.height,
+      .layers = 1,
+    };
+    if (vkCreateFramebuffer(m_device, &framebufferInfo
+          , nullptr, &m_swapchainWrap.framebuffer[i]) != VK_SUCCESS)
+      throw VishHelper::FatalVulkanInitError("Failed to create Framebuffer!");
   }
 }
