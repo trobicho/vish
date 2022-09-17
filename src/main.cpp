@@ -14,8 +14,10 @@ int main() {
 
   while(!glfwWindowShouldClose(win)) {
     glfwPollEvents();
+    vish.drawFrame();
   }
 
+  vish.deviceWait();
   glfwDestroyWindow(win);
   glfwTerminate();
 

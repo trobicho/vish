@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "vish.hpp"
 #include "vishParams.hpp"
 #include "vishHelper.hpp"
@@ -11,6 +12,11 @@ Vish::Vish(GLFWwindow *win) : m_window(win) {
 Vish::~Vish() {
   uint32_t imgCount;
 
+  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkDestroySemaphore(m_device, m_renderSync.semaphoreAvailable[i], nullptr); 
+    vkDestroySemaphore(m_device, m_renderSync.semaphoreFinish[i], nullptr); 
+    vkDestroyFence(m_device, m_renderSync.fence[i], nullptr); 
+  }
   vkDestroyCommandPool(m_device, m_commandPool, nullptr);
   vkDestroyRenderPass(m_device, m_renderPass, nullptr);
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
@@ -43,6 +49,51 @@ void  Vish::init() {
 
   createCommandPool();
   allocateCommandBuffer();
+  createRenderSync();
+}
+
+void  Vish::drawFrame() {
+  uint32_t  imageIndex;
+
+  auto currentFrame = m_renderSync.currentFrame;
+
+  vkWaitForFences(m_device, 1, &m_renderSync.fence[currentFrame], VK_TRUE, UINT64_MAX);
+  vkResetFences(m_device, 1, &m_renderSync.fence[currentFrame]);
+
+  vkAcquireNextImageKHR(m_device, m_swapchainWrap.chain, UINT64_MAX
+      , m_renderSync.semaphoreAvailable[currentFrame]
+      , VK_NULL_HANDLE, &imageIndex);
+
+  vkResetCommandBuffer(m_commandBuffers[currentFrame], 0);
+  recordCommandBuffer(m_commandBuffers[currentFrame], imageIndex);
+
+  VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  VkSubmitInfo  submitInfo = {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &m_renderSync.semaphoreAvailable[currentFrame],
+    .pWaitDstStageMask = waitStage,
+    .commandBufferCount = 1,
+    .pCommandBuffers = &m_commandBuffers[currentFrame],
+    .signalSemaphoreCount = 1,
+    .pSignalSemaphores = &m_renderSync.semaphoreFinish[currentFrame],
+  };
+  if (vkQueueSubmit(m_queueWrap.graphics, 1, &submitInfo
+        , m_renderSync.fence[currentFrame]) != VK_SUCCESS)
+    throw VishHelper::FatalVulkanInitError("Failed to draw Frame");
+  m_renderSync.currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+  VkPresentInfoKHR  presentInfo = {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &m_renderSync.semaphoreFinish[currentFrame],
+    .swapchainCount = 1,
+    .pSwapchains = &m_swapchainWrap.chain,
+    .pImageIndices = &imageIndex,
+    .pResults = nullptr,
+  };
+
+  vkQueuePresentKHR(m_queueWrap.graphics, &presentInfo);
 }
 
 void  Vish::createInstance() {

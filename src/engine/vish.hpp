@@ -3,6 +3,8 @@
 #include "GLFW/glfw3.h"
 #include <vector>
 
+#define MAX_FRAMES_IN_FLIGHT  2
+
 struct  SwapChainWrapper {
   VkSwapchainKHR        chain;
   VkFormat              imageFormat;
@@ -24,12 +26,21 @@ struct  QueueWrapper {
   uint32_t  graphicsFamilyIndex;
 };
 
+struct  RenderSync {
+  uint32_t                  currentFrame;
+  std::vector<VkSemaphore>  semaphoreAvailable;
+  std::vector<VkSemaphore>  semaphoreFinish;
+  std::vector<VkFence>      fence;
+};
+
 class   Vish {
     public:
       Vish(GLFWwindow *win);
       ~Vish();
 
       void  init();
+      void  drawFrame();
+      void  deviceWait() {vkDeviceWaitIdle(m_device);}
 
     private:
       void  createInstance();
@@ -63,9 +74,10 @@ class   Vish {
     private:
       void  createCommandPool();
       void  allocateCommandBuffer();
-      void  recordCommandBuffer();
       void  recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+      void  createRenderSync();
 
       VkCommandPool                 m_commandPool;
       std::vector<VkCommandBuffer>  m_commandBuffers;
+      RenderSync                    m_renderSync;
 };

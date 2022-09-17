@@ -62,8 +62,10 @@ static VkPipelineMultisampleStateCreateInfo     multisampleStateInfo() {
   return (multisampling);
 }
 
-static VkPipelineColorBlendStateCreateInfo  colorBlendStateInfo_noBlending() {
-  VkPipelineColorBlendAttachmentState colorBlendAttachment = {
+static VkPipelineColorBlendStateCreateInfo  colorBlendStateInfo_noBlending(
+    VkPipelineColorBlendAttachmentState &colorBlendAttachment) {
+
+  colorBlendAttachment = (VkPipelineColorBlendAttachmentState) {
     .blendEnable = VK_FALSE,
     .srcColorBlendFactor = VK_BLEND_FACTOR_ONE, //Optional
     .dstColorBlendFactor = VK_BLEND_FACTOR_ZERO, //Optional
@@ -103,7 +105,8 @@ void  Vish::createGraphicsPipeline(PipelineWrapper &pipelineWrap) {
   VkPipelineInputAssemblyStateCreateInfo  inputAssemblyInfo = inputAssemblyStateInfo();
   VkPipelineRasterizationStateCreateInfo  rasterizationInfo = rasterizationStateInfo();
   VkPipelineMultisampleStateCreateInfo    multisampleInfo = multisampleStateInfo();
-  VkPipelineColorBlendStateCreateInfo     colorBlendInfo = colorBlendStateInfo_noBlending();
+  VkPipelineColorBlendAttachmentState     colorBlendAttachment;
+  VkPipelineColorBlendStateCreateInfo     colorBlendInfo = colorBlendStateInfo_noBlending(colorBlendAttachment); // To avoid static attachment
   VkPipelineViewportStateCreateInfo       viewportInfo = viewportStateInfo();
 
   VkDynamicState dynamicStates[] = {
