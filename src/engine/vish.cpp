@@ -11,6 +11,7 @@ Vish::Vish(GLFWwindow *win) : m_window(win) {
 Vish::~Vish() {
   uint32_t imgCount;
 
+  vkDestroyCommandPool(m_device, m_commandPool, nullptr);
   vkDestroyRenderPass(m_device, m_renderPass, nullptr);
   vkGetSwapchainImagesKHR(m_device, m_swapchainWrap.chain, &imgCount, nullptr);
   for (auto pipeline : m_pipelineBuffer) {
@@ -34,9 +35,14 @@ void  Vish::init() {
   createSwapchain();
   createImageView();
   createRenderPass();
-  createFramebuffer();
+
   m_pipelineBuffer.resize(1);
   createGraphicsPipeline(m_pipelineBuffer[0]);
+
+  createFramebuffer();
+
+  createCommandPool();
+  allocateCommandBuffer();
 }
 
 void  Vish::createInstance() {
@@ -110,6 +116,7 @@ void  Vish::createLogicalDeviceAndQueue() {
       , nullptr, &m_device) != VK_SUCCESS)
     throw VishHelper::FatalVulkanInitError("Failed to create logical device!");
   vkGetDeviceQueue(m_device, queueFamilyIndex, 0, &m_queueWrap.graphics);
+  m_queueWrap.graphicsFamilyIndex = queueFamilyIndex;
 }
 
 void  Vish::createSwapchain() {
@@ -164,6 +171,7 @@ void  Vish::createSwapchain() {
     throw VishHelper::FatalVulkanInitError("Failed to optain imageKHR!");
   m_swapchainWrap.imageFormat = format.format;
   m_swapchainWrap.extent = extent;
+  m_swapchainWrap.imageCount = imageCount;
 }
 
 void  Vish::createImageView() {

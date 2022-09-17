@@ -11,6 +11,7 @@ struct  SwapChainWrapper {
   std::vector<VkImage>        image;
   std::vector<VkFramebuffer>  framebuffer;
   std::vector<VkImageView>    imageView;
+  uint32_t                    imageCount;
 };
 
 struct  PipelineWrapper {
@@ -20,6 +21,7 @@ struct  PipelineWrapper {
 
 struct  QueueWrapper {
   VkQueue   graphics;
+  uint32_t  graphicsFamilyIndex;
 };
 
 class   Vish {
@@ -57,4 +59,13 @@ class   Vish {
     private:
       void  createGraphicsPipeline(PipelineWrapper &pipelineWrap);
       void  destroyPipeline(PipelineWrapper &pipelineWrap);
+
+    private:
+      void  createCommandPool();
+      void  allocateCommandBuffer();
+      void  recordCommandBuffer();
+      void  recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+      VkCommandPool                 m_commandPool;
+      std::vector<VkCommandBuffer>  m_commandBuffers;
 };

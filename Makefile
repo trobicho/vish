@@ -34,7 +34,7 @@ SRCS_NAME =	main.cpp \
 			engine/queueHelper.cpp \
 			engine/vishRenderPass.cpp \
 			engine/vishPipelineGraphics.cpp \
-			engine/vishMemory.cpp \
+			engine/vishCommand.cpp \
 
 HDRS_NAME =	engine/vish.hpp \
 			engine/vishHelper.hpp \
