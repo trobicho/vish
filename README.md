@@ -1,2 +1,3 @@
 # vish
-Vulkan new project
+
+A Vulkan template project
