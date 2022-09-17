@@ -28,9 +28,18 @@ Vish::~Vish() {
     vkDestroyFramebuffer(m_device, m_swapchainWrap.framebuffer[i], nullptr);
   }
   vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
+
+  vkDestroyDevice(m_device, nullptr);
   vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
   vkDestroyInstance(m_instance, nullptr);
-  vkDestroyDevice(m_device, nullptr);
+}
+
+void  Vish::cleanupSwapchain() {
+  for (auto& imageView : m_swapchainWrap.imageView)
+    vkDestroyImageView(m_device, imageView, nullptr);
+  for (auto& framebuffer : m_swapchainWrap.framebuffer)
+    vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+  vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
 }
 
 void  Vish::init() {
@@ -52,6 +61,16 @@ void  Vish::init() {
   createRenderSync();
 }
 
+void  Vish::recreateSwapchain() {
+  deviceWait();
+
+  cleanupSwapchain();
+
+  createSwapchain();
+  createImageView();
+  createFramebuffer();
+}
+
 void  Vish::drawFrame() {
   uint32_t  imageIndex;
 
@@ -60,9 +79,18 @@ void  Vish::drawFrame() {
   vkWaitForFences(m_device, 1, &m_renderSync.fence[currentFrame], VK_TRUE, UINT64_MAX);
   vkResetFences(m_device, 1, &m_renderSync.fence[currentFrame]);
 
-  vkAcquireNextImageKHR(m_device, m_swapchainWrap.chain, UINT64_MAX
+  VkResult  result = vkAcquireNextImageKHR(m_device
+      , m_swapchainWrap.chain, UINT64_MAX
       , m_renderSync.semaphoreAvailable[currentFrame]
       , VK_NULL_HANDLE, &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+    recreateSwapchain();
+    return ;
+  }
+  else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+    throw VishHelper::FatalVulkanInitError("Failed to acquire swapchain image !");
+  }
 
   vkResetCommandBuffer(m_commandBuffers[currentFrame], 0);
   recordCommandBuffer(m_commandBuffers[currentFrame], imageIndex);

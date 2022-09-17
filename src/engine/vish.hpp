@@ -43,6 +43,8 @@ class   Vish {
       void  deviceWait() {vkDeviceWaitIdle(m_device);}
 
     private:
+      void  cleanupSwapchain();
+      void  recreateSwapchain();
       void  createInstance();
       void  createSurface();
       void  createSwapchain();
