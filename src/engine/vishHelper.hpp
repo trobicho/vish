@@ -4,6 +4,11 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+  
+namespace VishHelper {
+  void  infoInstance();
+  void  infoRaytracingProperties(VkPhysicalDevice physicalDevice);
+}
 
 namespace VishHelper {
   std::vector<char>     readBinaryFile(const std::string &filename);
@@ -14,8 +19,6 @@ namespace VishHelper {
 }
 
 namespace VishHelper {
-  void  infoInstance();
-
   class	FatalError: public std::exception
   {
     public:

@@ -174,6 +174,8 @@ void  Vish::createLogicalDeviceAndQueue() {
   uint32_t  queueFamilyIndex;
   float     queuePriority = 1.0f;
 
+  VishHelper::infoRaytracingProperties(m_physicalDevice);
+
   QueueHelper::familyIndex(m_physicalDevice, m_surface, &queueFamilyIndex);
   VkDeviceQueueCreateInfo queueInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
